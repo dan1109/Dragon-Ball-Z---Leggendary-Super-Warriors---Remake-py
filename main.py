@@ -5,6 +5,7 @@ import pygame
 
 import messages
 import save_load
+import video_manager
 from colors import Colors
 from menu_state import MenuState
 from sound_manager import SoundManager
@@ -132,9 +133,10 @@ class Game:
     def run(self):
         self.menu("resources/images/Icons/menu.png", SoundManager.MENU_SOUND, messages.Messages.INIT_MENU_OPTION, True,
                   None, None)
-        if self.state.selected_option == 1:  # save
-            save_load.choose_slot(True)
-            self.state.selected_option = 2
+        if self.state.selected_option == 0:  # new
+            video_manager. \
+                play_video("resources/videos/Dragon Ball Z - I Leggendari Super Guerrieri (ITA) - Capitolo 1.mp4",
+                           800, 600)
         if self.state.selected_option == 1:  # load
             json_save = save_load.choose_slot(False)
         print("")

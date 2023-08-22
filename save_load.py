@@ -65,6 +65,6 @@ class MenuState:
         print("")
 
 
-if __name__ == "__main__":
+def test():
     save_obj = MenuState()
     save_obj.run()
