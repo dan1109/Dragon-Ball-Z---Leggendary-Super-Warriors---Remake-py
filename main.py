@@ -3,6 +3,7 @@ import time
 
 import pygame
 
+import dialogue_system
 import messages
 import save_load
 import video_manager
@@ -10,6 +11,7 @@ from colors import Colors
 from menu_state import MenuState
 from sound_manager import SoundManager
 from start_state import StartState
+from story import story_01
 
 
 class Game:
@@ -28,24 +30,65 @@ class Game:
         self.enter_pressed = False
         self.menu_options_img = None
 
-    def draw_image_on_background(self, image_path, x, y):
+    def draw_image_on_background(self, image_path, x, y, is_upscale: bool, width, height):
         # Disegna l'immagine sulla superficie temporanea alle coordinate (x, y)
-        self.screen.blit(pygame.image.load(image_path), (x, y))
+        if is_upscale:
+            image = pygame.transform.scale(pygame.image.load(image_path), (width, height))
+        else:
+            image = pygame.image.load(image_path)
+        self.erase_screen(x, y)
+        self.screen.blit(image, (x, y))
+        pygame.display.flip()
+
+    def draw_image_on_background_slowly(self, image_type, image_path, x, y, is_upscale: bool, r_width, r_height, dur_sec):
+        max_opacity = 255
+        frames_per_sec = 30
+        total_frames = int(frames_per_sec * dur_sec)
+        if image_type is not None:
+            image = image_type
+        else:
+            image = pygame.image.load(image_path)
+        if is_upscale:
+            image = pygame.transform.scale(image, (r_width, r_height))
+        for frame in range(total_frames):
+            current_opacity = int((frame / total_frames) * max_opacity)  # Calcola l'opacità corrente
+            image.set_alpha(current_opacity)  # Imposta l'opacità dell'immagine
+            # self.screen.fill((0, 0, 0))  # Pulisce lo schermo
+            self.screen.blit(image, (x, y))
+            pygame.display.flip()
+
+            time.sleep(1 / frames_per_sec)  # Ritardo tra le iterazioni
+
+        self.screen.blit(image, (x, y))  # Mostra l'immagine con opacità massima
+        pygame.display.flip()
 
     def draw_font(self, text, color, x, y):
         start_text = self.custom_font.render(text, True, color)
         start_text_rect = start_text.get_rect(center=(x, y))
         self.screen.blit(start_text, start_text_rect)
 
-    def erase_screen(self):
+    def get_cropped_image(self, image_path, x, y, width, height):
+        image = pygame.image.load(image_path)
+        # Definisci il rettangolo di ritaglio (x, y, larghezza, altezza)
+        crop_rect = pygame.Rect(x, y, width, height)
+        # Ritaglia l'immagine secondo il rettangolo definito
+        cropped_image = pygame.Surface((crop_rect.width, crop_rect.height))
+        cropped_image.blit(image, (0, 0), crop_rect)
+        return cropped_image
+
+    def erase_screen(self, screen_width, screen_height):
+        if screen_width is None or screen_height is None:
+            screen_width = self.screen_width
+            screen_height = self.screen_height
         while self.fade_opacity < 255:  # Assicurati di non superare l'opacità massima
             self.fade_opacity += 0.35  # Aumenta gradualmente l'opacità
             # Disegna il rettangolo di dissolvenza
-            fade_surface = pygame.Surface((self.screen_width, self.screen_height))
+            fade_surface = pygame.Surface((screen_width, screen_height))
             fade_surface.set_alpha(self.fade_opacity)
             fade_surface.fill(Colors.WHITE)
             self.screen.blit(fade_surface, (0, 0))
             pygame.display.flip()
+        pygame.display.flip()
 
     def menu_options(self, options_list, screen_width, screen_height):
         # Pulizia dello schermo
@@ -60,7 +103,7 @@ class Game:
     def menu(self, menu_image: str, menu_sound, options_list, is_double_check: bool, screen_width, screen_height):
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         pygame.display.set_caption("Dragon Ball Z : I Leggendari Super Guerrieri")
-        self.erase_screen()
+        self.erase_screen(None, None)
         # Caricamento e ridimensionamento dell'immagine di sfondo
         self.background = pygame.image.load(menu_image)
         self.background = pygame.transform.scale(self.background, (self.screen_width, self.screen_height))
@@ -119,24 +162,23 @@ class Game:
                                screen_width // 2, screen_height // 2 + self.state.selected_option * 50)
                 self.draw_image_on_background("resources/images/Icons/select.PNG",
                                               (screen_width // 2) - 0.35 * screen_width,
-                                              screen_height // 2 + self.state.selected_option * 45)
+                                              screen_height // 2 + self.state.selected_option * 45, False, 0, 0)
                 pygame.display.flip()
             pygame.display.flip()
             if self.state.count_enter == MenuState.ENTER_CHOICE:
                 self.running = False
 
         print("Uscito dal menu - " + str(options_list[self.state.selected_option]))
-        self.erase_screen()
+        self.erase_screen(None, None)
         SoundManager.stop_current_music()  # stop menu music
         return self.state.selected_option
 
     def run(self):
+        video_manager.play_video("resources/videos/Gameboy Color - Boot Up Screen.mp4", 800, 600)
         self.menu("resources/images/Icons/menu.png", SoundManager.MENU_SOUND, messages.Messages.INIT_MENU_OPTION, True,
                   None, None)
         if self.state.selected_option == 0:  # new
-            video_manager. \
-                play_video("resources/videos/Dragon Ball Z - I Leggendari Super Guerrieri (ITA) - Capitolo 1.mp4",
-                           800, 600)
+            story_01(self)
         if self.state.selected_option == 1:  # load
             json_save = save_load.choose_slot(False)
         print("")
