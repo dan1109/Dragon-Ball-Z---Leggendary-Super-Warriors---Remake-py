@@ -5,6 +5,15 @@ from main import Game, get_cropped_image
 from sound_manager import SoundManager
 
 
+def temp_test(game):
+    if game is None:
+        game = Game()
+    dialogue_system.box_face(game, 190, 33, False, False)  # piccolo face
+    dialogue_system.dialogue_dx(game, "resources/Dialogue/Story_01/Story_01_16.txt", "Piccolo", False)
+    dialogue_system.box_face(game, 106, 33, False, True)  # gohan face
+    dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_17.txt", "Gohan", False)
+
+
 def story_01(game):
     if game is None:
         game = Game()
@@ -28,9 +37,8 @@ def story_01(game):
     screen_white_and_empty_box(game)
     game.draw_image_on_background_slowly(None, "resources/images/Icons/story_blue.png", 0, 0, True,
                                          game.screen_width, game.screen_height - 200, 1)
-
-    dialogue_system.narration_box(game, "resources/Dialogue/Story_01/Story_01_03.txt", False)
     SoundManager.stop_current_music()
+    dialogue_system.narration_box(game, "resources/Dialogue/Story_01/Story_01_03.txt", False)
     dialogue_system.box_face(game, 22, 33, True, None)  # radittz face
     SoundManager.play_sound("resources/sounds/11 BGM #07.wav", True)
     dialogue_system.narration_box(game, "resources/Dialogue/Story_01/Story_01_04.txt", False)
@@ -96,4 +104,5 @@ def story_01(game):
 
 
 game = Game()
+# temp_test(game)
 story_01(game)

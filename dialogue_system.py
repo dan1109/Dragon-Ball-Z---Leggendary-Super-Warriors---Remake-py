@@ -70,7 +70,7 @@ def create_empty_box(screen, screen_width, screen_height):
 
 
 def screen_white_and_empty_box(game):
-    screen_white_transition(game.screen, game.screen_width, game.screen_height, 1)
+    screen_white_transition(game.screen, game.screen_width, game.screen_height, 0.75)
     create_empty_box(game.screen, game.screen_width, game.screen_height)
 
 
@@ -188,8 +188,6 @@ def dialogue_box(game, txt_path, name_person: str, erase_all_screen: bool, is_pe
     pygame.draw.rect(screen, Colors.BLACK, (0, height_box, screen_width, 200), 2)
     screen.blit(line_surface, (20, screen_height - 180 + 1 * 40))
     pygame.display.flip()
-    # Capture the current screen content
-    screen_copy = screen.copy()
     # disegna il box della persona che parla
     if is_person:
         font_person = pygame.font.Font(font_path, 24)
@@ -201,6 +199,8 @@ def dialogue_box(game, txt_path, name_person: str, erase_all_screen: bool, is_pe
             width_dialogue_person += screen_width - screen_width / 2.4
         set_person_box_with_image(screen, font_person, dialogue_box_img,
                                   name_person, width_dialogue_person, height_box, is_left)
+    # Capture the current screen content
+    screen_copy = screen.copy()
     time.sleep(0.5)
     while running:
         for event in pygame.event.get():
