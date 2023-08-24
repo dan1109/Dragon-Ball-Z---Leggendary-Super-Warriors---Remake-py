@@ -25,3 +25,4 @@ class MenuState:
             elif event.key == pygame.K_RETURN:
                 SoundManager.play_click_sound()
                 self.execute_option(options_list)
+

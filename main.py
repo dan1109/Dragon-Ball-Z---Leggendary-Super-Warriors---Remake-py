@@ -2,8 +2,6 @@ import sys
 import time
 
 import pygame
-
-import dialogue_system
 import messages
 import save_load
 import video_manager
@@ -11,22 +9,32 @@ from colors import Colors
 from menu_state import MenuState
 from sound_manager import SoundManager
 from start_state import StartState
-from story import story_01
+
+
+def get_cropped_image(image_path, x, y, width, height):
+    image = pygame.image.load(image_path)
+    # Definisci il rettangolo di ritaglio (x, y, larghezza, altezza)
+    crop_rect = pygame.Rect(x, y, width, height)
+    # Ritaglia l'immagine secondo il rettangolo definito
+    cropped_image = pygame.Surface((crop_rect.width, crop_rect.height))
+    cropped_image.blit(image, (0, 0), crop_rect)
+    return cropped_image
 
 
 class Game:
     def __init__(self):
+        pygame.init()
         self.fade_opacity = 0  # Opacità iniziale del rettangolo di dissolvenza
-        self.enter_pressed = False
         self.running = True
         self.state = MenuState()
-        pygame.init()
         self.screen = pygame.display
         self.background = pygame.image
         self.custom_font = pygame.font
         self.start_state = None
         self.screen_width = 800
         self.screen_height = 600
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        pygame.display.set_caption("Dragon Ball Z : I Leggendari Super Guerrieri")
         self.enter_pressed = False
         self.menu_options_img = None
 
@@ -66,15 +74,6 @@ class Game:
         start_text = self.custom_font.render(text, True, color)
         start_text_rect = start_text.get_rect(center=(x, y))
         self.screen.blit(start_text, start_text_rect)
-
-    def get_cropped_image(self, image_path, x, y, width, height):
-        image = pygame.image.load(image_path)
-        # Definisci il rettangolo di ritaglio (x, y, larghezza, altezza)
-        crop_rect = pygame.Rect(x, y, width, height)
-        # Ritaglia l'immagine secondo il rettangolo definito
-        cropped_image = pygame.Surface((crop_rect.width, crop_rect.height))
-        cropped_image.blit(image, (0, 0), crop_rect)
-        return cropped_image
 
     def erase_screen(self, screen_width, screen_height):
         if screen_width is None or screen_height is None:
@@ -126,6 +125,7 @@ class Game:
                     SoundManager.stop_music()  # stop menu music
                     self.running = False
                 elif is_double_check and self.enter_pressed is False:
+
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_RETURN:
                             SoundManager.play_click_sound()
@@ -174,6 +174,7 @@ class Game:
         return self.state.selected_option
 
     def run(self):
+        from story import story_01
         video_manager.play_video("resources/videos/Gameboy Color - Boot Up Screen.mp4", 800, 600)
         self.menu("resources/images/Icons/menu.png", SoundManager.MENU_SOUND, messages.Messages.INIT_MENU_OPTION, True,
                   None, None)

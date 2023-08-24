@@ -1,12 +1,6 @@
 import json
-import sys
 import time
-
-import pygame
-
 import messages
-import sound_manager
-from main import Game
 
 
 # Save game state
@@ -20,6 +14,7 @@ def save_game_state(file_name, game_state):
 
 
 def choose_slot(is_load: bool):
+    from main import Game
     # Show save slots
     for i, slot in enumerate(messages.Messages.SAVE_SLOTS):
         print(f"Save Slot {i + 1}: {slot}")
