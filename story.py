@@ -1,5 +1,7 @@
+import pygame
+
 import dialogue_system
-import sound_manager
+import map_movement
 from dialogue_system import screen_white_and_empty_box
 from main import Game, get_cropped_image
 from sound_manager import SoundManager
@@ -8,11 +10,47 @@ from sound_manager import SoundManager
 def temp_test(game):
     if game is None:
         game = Game()
+    sun_mountain = get_cropped_image("resources/images/Icons/All_story.png", 661, 11, 160, 95)
+    dialogue_system.box_face(game, 106, 33, False, True)  # gohan face
+    SoundManager.play_sound_volume("resources/sounds/12 BGM #08.wav", 1.0, True)
+    dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_14.txt", "Gohan", False)
+    game.draw_image_on_background_slowly(sun_mountain, None, 0, 0, True,
+                                         game.screen_width, game.screen_height - 200, 0.5)
+    dialogue_system.narration_box(game, "resources/Dialogue/Story_01/Story_01_15.txt", False)
     dialogue_system.box_face(game, 190, 33, False, False)  # piccolo face
     dialogue_system.dialogue_dx(game, "resources/Dialogue/Story_01/Story_01_16.txt", "Piccolo", False)
     dialogue_system.box_face(game, 106, 33, False, True)  # gohan face
     dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_17.txt", "Gohan", False)
-
+    dialogue_system.box_face(game, 190, 33, False, False)  # piccolo face
+    dialogue_system.dialogue_dx(game, "resources/Dialogue/Story_01/Story_01_18.txt", "Piccolo", False)
+    dialogue_system.box_face(game, 106, 33, False, True)  # gohan face
+    dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_19.txt", "Gohan", False)
+    dialogue_system.box_face(game, 190, 33, False, False)  # piccolo face
+    dialogue_system.dialogue_dx(game, "resources/Dialogue/Story_01/Story_01_20.txt", "Piccolo", False)
+    dialogue_system.box_face(game, 232, 33, False, True)  # gohan face happy
+    dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_21.txt", "Gohan", False)
+    dialogue_system.box_face(game, 274, 33, False, True)  # gohan face ouch
+    dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_22.txt", "Gohan", False)
+    dialogue_system.box_face(game, 190, 33, False, False)  # piccolo face
+    dialogue_system.dialogue_dx(game, "resources/Dialogue/Story_01/Story_01_23.txt", "Piccolo", False)
+    SoundManager.stop_current_music()
+    dialogue_system.game_transiction(game)
+    # map
+    background = get_cropped_image("resources/images/Icons/All_maps.png", 18, 13, 255, 305)
+    pupazzo_sprites, pupazzo_rect = map_movement.get_sprites_kid_gohan(game)
+    # Inizializzazione delle variabili per l'animazione del pupazzo
+    current_direction = 0  # 0: giù, 1: destra, 2: su, 3: sinistra
+    current_frame = 0
+    screen_white_and_empty_box(game)
+    SoundManager.play_sound_volume("resources/sounds/17 BGM #13.wav", 0.2, True)
+    background = game.draw_image_on_background_slowly(background, None, 0, 0, True,
+                                                      game.screen_width, game.screen_height, 0.5)
+    game.screen.blit(pupazzo_sprites[current_direction][current_frame], pupazzo_rect)
+    # Aggiornamento dello schermo
+    pygame.display.flip()
+    dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_24.txt", "Gohan", False)
+    map_movement.load_background_sunny_land_map(game, background)
+    print("")
 
 def story_01(game):
     if game is None:
@@ -78,6 +116,7 @@ def story_01(game):
     dialogue_system.dialogue_dx(game, "resources/Dialogue/Story_01/Story_01_13.txt", "Piccolo", False)
     SoundManager.play_sound_volume("resources/sounds/12 BGM #08.wav", 1.0, True)
     dialogue_system.box_face(game, 106, 33, False, True)  # gohan face
+    SoundManager.play_sound_volume("resources/sounds/12 BGM #08.wav", 1.0, True)
     dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_14.txt", "Gohan", False)
     game.draw_image_on_background_slowly(sun_mountain, None, 0, 0, True,
                                          game.screen_width, game.screen_height - 200, 0.5)
@@ -100,9 +139,25 @@ def story_01(game):
     dialogue_system.dialogue_dx(game, "resources/Dialogue/Story_01/Story_01_23.txt", "Piccolo", False)
     SoundManager.stop_current_music()
     dialogue_system.game_transiction(game)
+    # map
+    background = get_cropped_image("resources/images/Icons/All_maps.png", 18, 13, 255, 305)
+    pupazzo_sprites, pupazzo_rect = map_movement.get_sprites_kid_gohan(game)
+    # Inizializzazione delle variabili per l'animazione del pupazzo
+    current_direction = 0  # 0: giù, 1: destra, 2: su, 3: sinistra
+    current_frame = 0
+    screen_white_and_empty_box(game)
+    SoundManager.play_sound_volume("resources/sounds/17 BGM #13.wav", 0.2, True)
+    background = game.draw_image_on_background_slowly(background, None, 0, 0, True,
+                                                      game.screen_width, game.screen_height, 0.5)
+    game.screen.blit(pupazzo_sprites[current_direction][current_frame], pupazzo_rect)
+    # Aggiornamento dello schermo
+    pygame.display.flip()
+    dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_24.txt", "Gohan", False)
+    map_movement.load_background_sunny_land_map(game, background)
     print("")
 
 
-game = Game()
-# temp_test(game)
-story_01(game)
+if __name__ == "__main__":
+    game = Game()
+    temp_test(game)
+    story_01(game)

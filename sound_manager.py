@@ -16,7 +16,6 @@ class SoundManager:
         pygame.mixer.init()
         pygame.mixer.Sound(SoundManager.MENU_SOUND).play(-1)  # -1 indica il loop infinito
 
-
     @staticmethod
     def play_scroll_sound():
         pygame.mixer.init()
@@ -43,15 +42,19 @@ class SoundManager:
     @staticmethod
     def play_sound(music_path, is_infinite: bool):
         SoundManager.stop_current_music()
+        pygame.mixer.init()
         # Imposta il volume_level (0.0 - 1.0, dove 0.0 è muto e 1.0 è il massimo volume)
         volume_level = 0.2
         if is_infinite:
             pygame.mixer.Sound(music_path).play(-1).set_volume(volume_level)
         else:
             pygame.mixer.Sound(music_path).play().set_volume(volume_level)
+
     @staticmethod
     def play_sound_volume(music_path, volume_level, is_infinite: bool):
         SoundManager.stop_current_music()
+        pygame.mixer.stop()
+        pygame.mixer.init()
         # Imposta il volume_level (0.0 - 1.0, dove 0.0 è muto e 1.0 è il massimo volume)
         if is_infinite:
             pygame.mixer.Sound(music_path).play(-1).set_volume(volume_level)

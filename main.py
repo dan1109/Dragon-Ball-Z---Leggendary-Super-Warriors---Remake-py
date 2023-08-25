@@ -2,6 +2,8 @@ import sys
 import time
 
 import pygame
+from pygame import Surface
+
 import messages
 import save_load
 import video_manager
@@ -11,12 +13,13 @@ from sound_manager import SoundManager
 from start_state import StartState
 
 
-def get_cropped_image(image_path, x, y, width, height):
+def get_cropped_image(image_path, x, y, width, height) -> pygame.Surface:
     image = pygame.image.load(image_path)
     # Definisci il rettangolo di ritaglio (x, y, larghezza, altezza)
     crop_rect = pygame.Rect(x, y, width, height)
     # Ritaglia l'immagine secondo il rettangolo definito
-    cropped_image = pygame.Surface((crop_rect.width, crop_rect.height))
+    # Crea una nuova immagine con sfondo trasparente
+    cropped_image = pygame.Surface((crop_rect.width, crop_rect.height), pygame.SRCALPHA)
     cropped_image.blit(image, (0, 0), crop_rect)
     return cropped_image
 
@@ -48,7 +51,8 @@ class Game:
         self.screen.blit(image, (x, y))
         pygame.display.flip()
 
-    def draw_image_on_background_slowly(self, image_type, image_path, x, y, is_upscale: bool, r_width, r_height, dur_sec):
+    def draw_image_on_background_slowly(self, image_type, image_path, x, y, is_upscale: bool, r_width, r_height,
+                                        dur_sec):
         max_opacity = 255
         frames_per_sec = 30
         total_frames = int(frames_per_sec * dur_sec)
@@ -69,6 +73,7 @@ class Game:
 
         self.screen.blit(image, (x, y))  # Mostra l'immagine con opacità massima
         pygame.display.flip()
+        return image
 
     def draw_font(self, text, color, x, y):
         start_text = self.custom_font.render(text, True, color)
