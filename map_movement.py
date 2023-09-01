@@ -1,9 +1,96 @@
 # 160*150 is the mini window to move. Load all maps
 import random
+
+import numpy as np
 import pygame
 import sys
 
 from main import get_cropped_image, Game
+
+
+def flip_collision_matrix(game, collision_matrix):
+    """
+    debug purpose
+    :param game:
+    :param collision_matrix:
+    :return:
+    """
+    # Visualizza la matrice di collisione
+    for y in range(len(collision_matrix)):
+        for x in range(len(collision_matrix[0])):
+            if collision_matrix[y][x] == 1:
+                pygame.draw.rect(game.screen, (255, 0, 0),
+                                 pygame.Rect(x, y, 1, 1))
+
+    # Aggiornamento dello schermo
+    pygame.display.flip()
+
+
+def add_obstacles_to_collision_matrix(collision_matrix, background_image: pygame.Surface,
+                                      obstacle_image: pygame.Surface):
+    obstacle_width = obstacle_image.get_width()
+    obstacle_height = obstacle_image.get_height()
+
+    background_array = pygame.surfarray.array3d(background_image)
+    obstacle_array = pygame.surfarray.array3d(obstacle_image)
+
+    for y in range(background_image.get_height() - obstacle_height + 1):
+        for x in range(background_image.get_width() - obstacle_width + 1):
+            cropped_area = pygame.Rect(x, y, obstacle_width, obstacle_height)
+            cropped_surface = background_image.subsurface(cropped_area)
+            cropped_array = pygame.surfarray.array3d(cropped_surface)
+
+            if np.array_equal(cropped_array, obstacle_array):
+                for i in range(obstacle_height):
+                    for j in range(obstacle_width):
+                        if 0 <= y + i < len(collision_matrix) and 0 <= x + j < len(collision_matrix[0]):
+                            if obstacle_image.get_at((j, i)) != (0, 0, 0, 0):
+                                collision_matrix[y + i][x + j] = 1
+    return collision_matrix
+
+
+def common_parts_matrix(common_matrix, image1: pygame.Surface, image2: pygame.Surface):
+    width = min(image1.get_width(), image2.get_width())
+    height = min(image1.get_height(), image2.get_height())
+
+    array1 = pygame.surfarray.array3d(image1.subsurface(pygame.Rect(0, 0, width, height)))
+    array2 = pygame.surfarray.array3d(image2.subsurface(pygame.Rect(0, 0, width, height)))
+
+    common_matrix = np.all(array1 == array2, axis=2).astype(int)
+
+    return common_matrix.tolist()
+
+
+def upscale_matrix(collision_matrix, map_surface: pygame.Surface, background: pygame.Surface):
+    """
+    :param collision_matrix: Matrice di collisioni originale
+    :param map_surface: Superficie della mappa
+    :param background: Superficie dello sfondo
+    :return: collision_matrix_game
+    """
+    # Fattori di scala
+    scale_x = background.get_width() / map_surface.get_width()
+    scale_y = background.get_height() / map_surface.get_height()
+
+    collision_matrix_game = []
+
+    for y in range(background.get_height()):
+        collision_row = []
+        for x in range(background.get_width()):
+            # Calcola gli indici sulla matrice originale in base alle coordinate nell'immagine ingrandita
+            original_y = int(y / scale_y)
+            original_x = int(x / scale_x)
+
+            # Accedi alla matrice di collisioni originale con gli indici calcolati
+            if 0 <= original_y < len(collision_matrix) and 0 <= original_x < len(collision_matrix[0]):
+                collision_value = collision_matrix[original_y][original_x]
+            else:
+                collision_value = 0
+
+            collision_row.append(collision_value)
+        collision_matrix_game.append(collision_row)
+
+    return collision_matrix_game
 
 
 def get_sprites_kid_gohan(game):
@@ -53,57 +140,45 @@ def get_sprites_kid_gohan(game):
 
     # Posizione iniziale del pupazzo
     pupazzo_rect = pupazzo_sprites[current_direction][current_frame].get_rect()
-    pupazzo_rect.center = (game.screen_width // 2, game.screen_height // 2)
+    pupazzo_rect.center = (game.screen_width // 3, game.screen_height // 3)
     return sorted_pupazzo_sprites, pupazzo_rect
-
-
-def get_matrix_movementes_map(game, map_surface):
-    """
-    :param game:
-    :param map_surface:
-    :return: collision_matrix
-    """
-    # map_surface = game.draw_image_on_background_slowly(map_surface, None, 0, 0, True,
-    #                                                   game.screen_width, game.screen_height, 0.5)
-    # Creazione del livello di collisione (matrice di collisione 800x600)
-    # Dimensioni delle celle per la matrice di collisione
-    collision_matrix = [[0] * game.screen_width for _ in range(game.screen_height)]
-    collision_matrix[game.screen_height - 1] = [1] * game.screen_width
-    collision_matrix[game.screen_height - 2] = [1] * game.screen_width
-    collision_matrix[game.screen_height - 3] = [1] * game.screen_width
-    collision_matrix[game.screen_height - 4] = [1] * game.screen_width
-    # Visualizza la matrice di collisione
-    for y in range(len(collision_matrix)):
-        for x in range(len(collision_matrix[0])):
-            if collision_matrix[y][x] == 1:
-                pygame.draw.rect(game.screen, (255, 0, 0),
-                                 pygame.Rect(x, y, 1, 1))
-
-    # Aggiornamento dello schermo
-    pygame.display.flip()
-    return collision_matrix
 
 
 def load_background_sunny_land_map(game, background):
     if game is None:
         game = Game()
     # Caricamento degli sfondi
-    cell_width = 1  # Sostituisci 'num_columns' con il numero di colonne della matrice
-    cell_height = 1  # Sostituisci 'num_rows' con il numero di righe della matrice
-    collision_matrix = get_matrix_movementes_map(game, background)
-    pupazzo_speed = 5
-    pupazzo_direction = [0, 0]
-    frame_counter = 0
-    animation_speed = 10
-    pupazzo_frames_per_direction = 2
+    stone_obstacle = get_cropped_image("resources/images/Icons/All_maps obstacles.png", 18, 13, 255, 305)
+    # Crea una matrice di collisioni vuota con la mappa originale
+    collision_matrix = [[0 for _ in range(background.get_width())] for _ in
+                        range(background.get_height())]
+    # tutte le collisioni in map
+    # collision_matrix = add_obstacles_to_collision_matrix(collision_matrix, background, stone_obstacle)
+    collision_matrix = common_parts_matrix(collision_matrix, background, stone_obstacle)
+    collision_matrix = upscale_matrix(collision_matrix, background, game.screen)
+    is_first_time: bool = True
     sorted_pupazzo_sprites, pupazzo_rect = get_sprites_kid_gohan(game)
+    background = game.draw_image_on_background_slowly(background, None, 0, 0, True,
+                                                      game.screen_width, game.screen_height, 0)
+    pupazzo_frames_per_direction = 2
     pupazzo_sprites = sorted_pupazzo_sprites
     # Inizializzazione delle variabili per l'animazione del pupazzo
     current_direction = 0  # 0: giù, 1: destra, 2: su, 3: sinistra
     current_frame = 0
-    # Posizione iniziale del pupazzo
-    pupazzo_rect = pupazzo_sprites[current_direction][current_frame].get_rect()
-    pupazzo_rect.center = (game.screen_width // 2, game.screen_height // 2)
+    game.screen.blit(pupazzo_sprites[current_direction][current_frame], pupazzo_rect)
+    first_time = game.screen.copy()  # Copia la superficie corrente
+    game.screen.blit(first_time, (0, 0))
+    # Aggiornamento dello schermo
+    pygame.display.flip()
+    flip_collision_matrix(game, collision_matrix)
+    # Aggiornamento dello schermo
+    pygame.display.flip()
+    cell_width = 1  # Sostituisci 'num_columns' con il numero di colonne della matrice
+    cell_height = 1  # Sostituisci 'num_rows' con il numero di righe della matrice
+    pupazzo_speed = 5
+    pupazzo_direction = [0, 0]
+    frame_counter = 0
+    animation_speed = 10
     # Variabili per il controllo del movimento
     moving_up = False
     moving_down = False
@@ -113,8 +188,6 @@ def load_background_sunny_land_map(game, background):
     last_time = pygame.time.get_ticks()
     time_per_frame = 1000 / 60  # Tempo in millisecondi per ogni frame
     clock = pygame.time.Clock()
-    is_first_time: bool = True
-    first_time = game.screen.copy()  # Copia la superficie corrente
     # Ciclo di gioco
     while True:
         current_time = pygame.time.get_ticks()

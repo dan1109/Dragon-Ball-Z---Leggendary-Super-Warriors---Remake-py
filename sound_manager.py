@@ -1,5 +1,9 @@
 import pygame
-import sys
+
+
+def initialize_if_not_mixer():
+    if not pygame.mixer.get_init():
+        pygame.mixer.init()
 
 
 def play_sound(music_path):
@@ -13,22 +17,22 @@ class SoundManager:
 
     @staticmethod
     def play_menu_sound():
-        pygame.mixer.init()
+        initialize_if_not_mixer()
         pygame.mixer.Sound(SoundManager.MENU_SOUND).play(-1)  # -1 indica il loop infinito
 
     @staticmethod
     def play_scroll_sound():
-        pygame.mixer.init()
+        initialize_if_not_mixer()
         pygame.mixer.Sound(SoundManager.SCROLL_MENU_SOUND).play()
 
     @staticmethod
     def play_click_sound():
-        pygame.mixer.init()
+        initialize_if_not_mixer()
         pygame.mixer.Sound(SoundManager.A_SOUND).play()
 
     @staticmethod
     def load_sound(music_path):
-        pygame.mixer.init()
+        initialize_if_not_mixer()
         return pygame.mixer.music.load(music_path)
 
     @staticmethod
@@ -38,32 +42,34 @@ class SoundManager:
     @staticmethod
     def stop_current_music():
         pygame.mixer.pause()
+        pygame.mixer.stop()  # ferma i canali
 
     @staticmethod
     def play_sound(music_path, is_infinite: bool):
-        SoundManager.stop_current_music()
-        pygame.mixer.init()
-        # Imposta il volume_level (0.0 - 1.0, dove 0.0 è muto e 1.0 è il massimo volume)
+        initialize_if_not_mixer()
         volume_level = 0.2
+        pygame.mixer.set_reserved(1)  # Imposta un canale riservato
+        music = pygame.mixer.Sound(music_path)  # Crea l'oggetto Sound
+        music.set_volume(volume_level)  # Imposta il volume
         if is_infinite:
-            pygame.mixer.Sound(music_path).play(-1).set_volume(volume_level)
+            music.play(loops=-1)  # Riproduci in loop infinito
         else:
-            pygame.mixer.Sound(music_path).play().set_volume(volume_level)
+            music.play()  # Riproduci una sola volta
 
     @staticmethod
-    def play_sound_volume(music_path, volume_level, is_infinite: bool):
-        SoundManager.stop_current_music()
-        pygame.mixer.stop()
-        pygame.mixer.init()
-        # Imposta il volume_level (0.0 - 1.0, dove 0.0 è muto e 1.0 è il massimo volume)
+    def play_sound_volume(music_path, volume_level, is_infinite):
+        initialize_if_not_mixer()
+        pygame.mixer.set_reserved(1)  # Imposta un canale riservato
+        music = pygame.mixer.Sound(music_path)  # Crea l'oggetto Sound
+        music.set_volume(volume_level)  # Imposta il volume
         if is_infinite:
-            pygame.mixer.Sound(music_path).play(-1).set_volume(volume_level)
+            music.play(loops=-1)  # Riproduci in loop infinito
         else:
-            pygame.mixer.Sound(music_path).play().set_volume(volume_level)
+            music.play()  # Riproduci una sola volta
 
     @staticmethod
     def get_audio_duration(music_path):
-        pygame.mixer.init()
+        initialize_if_not_mixer()
         audio = pygame.mixer.Sound(music_path)
         duration_in_seconds = audio.get_length()
         return duration_in_seconds

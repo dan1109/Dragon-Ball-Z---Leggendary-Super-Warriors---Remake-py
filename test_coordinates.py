@@ -72,5 +72,5 @@ def main(image_path):
 
 if __name__ == "__main__":
     # image_path = "resources/images/Icons/All_faces.png"
-    image_path = "resources/images/Icons/All_map_player.png"
+    image_path = "resources/images/Icons/All_maps.png"
     main(image_path)
