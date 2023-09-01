@@ -6,6 +6,17 @@ import pygame
 import sys
 
 from main import get_cropped_image, Game
+from test_obstacles import is_collision
+
+# Costanti
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
+CHARACTER_WIDTH, CHARACTER_HEIGHT = 20, 20
+CHARACTER_SPEED = 5
+ACCELERATION = 0.5
+
+# Posizione del secondo personaggio fisso
+SECOND_CHARACTER_X, SECOND_CHARACTER_Y = 700, 80
+SECOND_CHARACTER_WIDTH, SECOND_CHARACTER_HEIGHT = 20, 20
 
 
 def flip_collision_matrix(game, collision_matrix):
@@ -93,7 +104,7 @@ def upscale_matrix(collision_matrix, map_surface: pygame.Surface, background: py
     return collision_matrix_game
 
 
-def get_sprites_kid_gohan(game):
+def get_sprites_character(game, start_x: int, start_y: int, double_frames: bool):
     """
     # Posizione iniziale del pupazzo
     pupazzo_rect = pupazzo_sprites[current_direction][current_frame].get_rect()
@@ -101,14 +112,17 @@ def get_sprites_kid_gohan(game):
     :return: sorted_pupazzo_sprites, pupazzo_rect
     """
     # Caricamento degli sprite del pupazzo
-    pupazzo_sprite_sheet = get_cropped_image("resources/images/Icons/All_map_player.png", 20, 23, 33, 73)
-    pupazzo_sprite_sheet = pygame.transform.scale(pupazzo_sprite_sheet, (pupazzo_sprite_sheet.get_width() * 3.5,
-                                                                         pupazzo_sprite_sheet.get_height() * 2))
+    pupazzo_sprite_sheet = get_cropped_image("resources/images/Icons/All_map_player.png", start_x, start_y,
+                                             start_x+10, start_y+50)
+    pupazzo_sprite_sheet = pygame.transform.scale(pupazzo_sprite_sheet, (pupazzo_sprite_sheet.get_width() * 3,
+                                                                         pupazzo_sprite_sheet.get_height() * 1.2))
     # game.draw_image_on_background_slowly(pupazzo_sprite_sheet, None, 0, 0, False,
     #                                    0, 0, 0.5)
     pupazzo_width = pupazzo_sprite_sheet.get_width() / 2
     pupazzo_height = pupazzo_sprite_sheet.get_height() / 4
-    pupazzo_frames_per_direction = 2
+    pupazzo_frames_per_direction = 1
+    if double_frames:
+        pupazzo_frames_per_direction += 1
     pupazzo_sprites = []
     # Aggiorna lo schermo
     pygame.display.flip()
@@ -157,7 +171,7 @@ def load_background_sunny_land_map(game, background):
     collision_matrix = common_parts_matrix(collision_matrix, background, stone_obstacle)
     collision_matrix = upscale_matrix(collision_matrix, background, game.screen)
     is_first_time: bool = True
-    sorted_pupazzo_sprites, pupazzo_rect = get_sprites_kid_gohan(game)
+    sorted_pupazzo_sprites, pupazzo_rect = get_sprites_character(game)
     background = game.draw_image_on_background_slowly(background, None, 0, 0, True,
                                                       game.screen_width, game.screen_height, 0)
     pupazzo_frames_per_direction = 2
@@ -278,3 +292,121 @@ def load_background_sunny_land_map(game, background):
 
         # Limita il framerate
         clock.tick(60)
+
+
+def new_load_background_sunny_land_map(game, background):
+    if game is None:
+        game = Game()
+    # Caricamento degli sfondi
+    screen = game.screen
+    image1 = get_cropped_image("resources/images/Icons/All_maps.png", 18, 13, 255, 305).convert_alpha()
+    image2 = get_cropped_image("resources/images/Icons/All_maps obstacles.png", 18, 13, 255, 305).convert_alpha()
+
+    # Ridimensiona le immagini per adattarle alla finestra
+    image1 = pygame.transform.scale(image1, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    image2 = pygame.transform.scale(image2, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    character_x, character_y = 100, 100
+    sorted_pupazzo_sprites, character_rect = get_sprites_character(game, 20, 23, True)
+    second_character_sprites, second_character_rect = get_sprites_character(game, 69, 23, True)
+
+    greeting_displayed = False  # Per evitare di visualizzare il saluto "Hello" più di una volta
+
+    pupazzo_frames_per_direction = 2
+    pupazzo_sprites = sorted_pupazzo_sprites
+    # Inizializzazione delle variabili per l'animazione del pupazzo
+    current_direction = 0  # 0: giù, 1: destra, 2: su, 3: sinistra
+    current_frame = 0
+    game.screen.blit(pupazzo_sprites[current_direction][current_frame], character_rect)
+    first_time = game.screen.copy()  # Copia la superficie corrente
+    game.screen.blit(first_time, (0, 0))
+    # Aggiornamento dello schermo
+    pygame.display.flip()
+    # Aggiornamento dello schermo
+    pygame.display.flip()
+    pupazzo_speed = 5
+    frame_counter = 0
+    animation_speed = 10
+    # Variabili per il controllo del movimento
+    moving_up = False
+    moving_down = False
+    moving_left = False
+    moving_right = False
+    # Variabili per il controllo del tempo
+    last_time = pygame.time.get_ticks()
+    time_per_frame = 1000 / 60  # Tempo in millisecondi per ogni frame
+    clock = pygame.time.Clock()
+    running = True
+    # Ciclo di gioco
+    while running:
+        current_time = pygame.time.get_ticks()
+        keys = pygame.key.get_pressed()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    moving_up = True
+                elif event.key == pygame.K_DOWN:
+                    moving_down = True
+                elif event.key == pygame.K_LEFT:
+                    moving_left = True
+                elif event.key == pygame.K_RIGHT:
+                    moving_right = True
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_UP:
+                    moving_up = False
+                elif event.key == pygame.K_DOWN:
+                    moving_down = False
+                elif event.key == pygame.K_LEFT:
+                    moving_left = False
+                elif event.key == pygame.K_RIGHT:
+                    moving_right = False
+        # quale movimento ha fatto?
+        frame_counter += 1
+        if frame_counter >= animation_speed:
+            frame_counter = 0
+            current_frame = (current_frame + 1) % pupazzo_frames_per_direction
+        if moving_up:
+            current_direction = 2  # Sprite di movimento verso l'alto
+        elif moving_down:
+            current_direction = 0  # Sprite di movimento verso il basso
+        if moving_left:
+            current_direction = 3  # Sprite di movimento verso sinistra
+        elif moving_right:
+            current_direction = 1  # Sprite di movimento verso destra
+        if keys[pygame.K_LEFT]:
+            character_speed_x = -CHARACTER_SPEED
+        elif keys[pygame.K_RIGHT]:
+            character_speed_x = CHARACTER_SPEED
+        else:
+            character_speed_x = 0
+        if keys[pygame.K_UP]:
+            character_speed_y = -CHARACTER_SPEED
+        elif keys[pygame.K_DOWN]:
+            character_speed_y = CHARACTER_SPEED
+        else:
+            character_speed_y = 0
+        character_x += character_speed_x
+        character_y += character_speed_y
+        character_rect.topleft = (character_x, character_y)
+        if is_collision(character_rect, image1, image2) or character_rect.colliderect(second_character_rect):
+            character_x -= character_speed_x
+            character_y -= character_speed_y
+            if keys[pygame.K_a] and character_rect.colliderect(second_character_rect):
+                if not greeting_displayed:
+                    print("Hello")
+                    greeting_displayed = True
+            else:
+                greeting_displayed = False
+        # -- aggiornamento dell'immagine
+        screen.fill((0, 0, 0))
+        screen.blit(image1, (0, 0))  # Disegna l'immagine di sfondo
+        screen.blit(image2, (0, 0))  # Disegna l'immagine degli ostacoli
+        game.screen.blit(pupazzo_sprites[current_direction][current_frame], character_rect)  # Disegna il primo pers.
+        # Disegna il secondo personaggio (ostacolo)
+        game.screen.blit(second_character_sprites[current_direction][current_frame], second_character_rect)
+        pygame.display.flip()
+        clock.tick(60)
+        # -- aggiornamento dell'immagine

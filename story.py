@@ -12,7 +12,7 @@ def temp_test(game):
         game = Game()
     # map
     mini_background = get_cropped_image("resources/images/Icons/All_maps.png", 18, 13, 255, 305)
-    pupazzo_sprites, pupazzo_rect = map_movement.get_sprites_kid_gohan(game)
+    pupazzo_sprites, pupazzo_rect = map_movement.get_sprites_character(game, 20, 23, True)
     # Inizializzazione delle variabili per l'animazione del pupazzo
     current_direction = 0  # 0: giù, 1: destra, 2: su, 3: sinistra
     current_frame = 0
@@ -24,7 +24,8 @@ def temp_test(game):
     # Aggiornamento dello schermo
     pygame.display.flip()
     dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_24.txt", "Gohan", False)
-    map_movement.load_background_sunny_land_map(game, mini_background)
+    # map_movement.load_background_sunny_land_map(game, mini_background)
+    map_movement.new_load_background_sunny_land_map(game, mini_background)
     print("")
 
 
@@ -116,7 +117,7 @@ def story_01(game):
     dialogue_system.game_transiction(game)
     # map
     background = get_cropped_image("resources/images/Icons/All_maps.png", 18, 13, 255, 305)
-    pupazzo_sprites, pupazzo_rect = map_movement.get_sprites_kid_gohan(game)
+    pupazzo_sprites, pupazzo_rect = map_movement.get_sprites_character(game)
     # Inizializzazione delle variabili per l'animazione del pupazzo
     current_direction = 0  # 0: giù, 1: destra, 2: su, 3: sinistra
     current_frame = 0
