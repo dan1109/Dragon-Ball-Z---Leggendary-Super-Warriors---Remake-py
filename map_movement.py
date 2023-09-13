@@ -72,60 +72,38 @@ def common_parts_matrix(common_matrix, image1: pygame.Surface, image2: pygame.Su
     return common_matrix.tolist()
 
 
-def upscale_matrix(collision_matrix, map_surface: pygame.Surface, background: pygame.Surface):
-    """
-    :param collision_matrix: Matrice di collisioni originale
-    :param map_surface: Superficie della mappa
-    :param background: Superficie dello sfondo
-    :return: collision_matrix_game
-    """
-    # Fattori di scala
-    scale_x = background.get_width() / map_surface.get_width()
-    scale_y = background.get_height() / map_surface.get_height()
-
-    collision_matrix_game = []
-
-    for y in range(background.get_height()):
-        collision_row = []
-        for x in range(background.get_width()):
-            # Calcola gli indici sulla matrice originale in base alle coordinate nell'immagine ingrandita
-            original_y = int(y / scale_y)
-            original_x = int(x / scale_x)
-
-            # Accedi alla matrice di collisioni originale con gli indici calcolati
-            if 0 <= original_y < len(collision_matrix) and 0 <= original_x < len(collision_matrix[0]):
-                collision_value = collision_matrix[original_y][original_x]
-            else:
-                collision_value = 0
-
-            collision_row.append(collision_value)
-        collision_matrix_game.append(collision_row)
-
-    return collision_matrix_game
+def see_img(pupazzo_sprite_sheet):
+    schermo = pygame.display.set_mode((800, 600))
+    schermo.blit(pupazzo_sprite_sheet, (0, 0))
+    # Aggiorna lo schermo
+    pygame.display.flip()
 
 
-def get_sprites_character(game, start_x: int, start_y: int, double_frames: bool):
+def get_sprites_character(start_x: int, start_y: int, double_frames: bool):
     """
     # Posizione iniziale del pupazzo
     pupazzo_rect = pupazzo_sprites[current_direction][current_frame].get_rect()
     pupazzo_rect.center = (game.screen_width // 2, game.screen_height // 2)
     :return: sorted_pupazzo_sprites, pupazzo_rect
     """
-    # Caricamento degli sprite del pupazzo
+    # Caricamento degli sprite del pupazzo 30+73
     pupazzo_sprite_sheet = get_cropped_image("resources/images/Icons/All_map_player.png", start_x, start_y,
-                                             start_x+10, start_y+50)
-    pupazzo_sprite_sheet = pygame.transform.scale(pupazzo_sprite_sheet, (pupazzo_sprite_sheet.get_width() * 3,
-                                                                         pupazzo_sprite_sheet.get_height() * 1.2))
-    # game.draw_image_on_background_slowly(pupazzo_sprite_sheet, None, 0, 0, False,
-    #                                    0, 0, 0.5)
-    pupazzo_width = pupazzo_sprite_sheet.get_width() / 2
-    pupazzo_height = pupazzo_sprite_sheet.get_height() / 4
-    pupazzo_frames_per_direction = 1
-    if double_frames:
-        pupazzo_frames_per_direction += 1
+                                             30, 75)
+    see_img(pupazzo_sprite_sheet)
+    # Scala lo sprite sheet
+    scale_factor = 2 if double_frames else 1  # Imposta il fattore di scala corretto
+    pupazzo_sprite_sheet = pygame.transform.scale(pupazzo_sprite_sheet,
+                                                  (pupazzo_sprite_sheet.get_width() * scale_factor,
+                                                   pupazzo_sprite_sheet.get_height() * 1.2))
+
+    pupazzo_width = pupazzo_sprite_sheet.get_width() // (2 if double_frames else 1)
+    pupazzo_height = pupazzo_sprite_sheet.get_height() // 4
+
+    pupazzo_frames_per_direction = 2 if double_frames else 1  # Imposta il numero corretto di frame per direzione
+
     pupazzo_sprites = []
     # Aggiorna lo schermo
-    pygame.display.flip()
+    # pygame.display.flip()
     # Controllo dell'ordine delle direzioni
     valid_directions = [2, 0, 3, 1]  # su, giù, sinistra, destra
     for row in range(4):  # 4 righe per le 4 direzioni
@@ -134,9 +112,6 @@ def get_sprites_character(game, start_x: int, start_y: int, double_frames: bool)
             sprite_rect = pygame.Rect(col * pupazzo_width, row * pupazzo_height, pupazzo_width, pupazzo_height)
             pupazzo_frame = pupazzo_sprite_sheet.subsurface(sprite_rect)
             pupazzo_direction_sprites.append(pupazzo_frame)
-
-        # Memorizza le direzioni nell'ordine corretto
-        current_direction = valid_directions[row]
         pupazzo_sprites.append(pupazzo_direction_sprites)
 
     # Creiamo una nuova lista ordinata degli sprite
@@ -151,10 +126,7 @@ def get_sprites_character(game, start_x: int, start_y: int, double_frames: bool)
     # Inizializzazione delle variabili per l'animazione del pupazzo
     current_direction = 0  # 0: giù, 1: destra, 2: su, 3: sinistra
     current_frame = 0
-
-    # Posizione iniziale del pupazzo
     pupazzo_rect = pupazzo_sprites[current_direction][current_frame].get_rect()
-    pupazzo_rect.center = (game.screen_width // 3, game.screen_height // 3)
     return sorted_pupazzo_sprites, pupazzo_rect
 
 
@@ -294,28 +266,28 @@ def load_background_sunny_land_map(game, background):
         clock.tick(60)
 
 
-def new_load_background_sunny_land_map(game, background):
+def new_load_background_sunny_land_map(game, background, obstacles):
     if game is None:
         game = Game()
     # Caricamento degli sfondi
     screen = game.screen
-    image1 = get_cropped_image("resources/images/Icons/All_maps.png", 18, 13, 255, 305).convert_alpha()
-    image2 = get_cropped_image("resources/images/Icons/All_maps obstacles.png", 18, 13, 255, 305).convert_alpha()
 
     # Ridimensiona le immagini per adattarle alla finestra
-    image1 = pygame.transform.scale(image1, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    image2 = pygame.transform.scale(image2, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    obstacles = pygame.transform.scale(obstacles, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
     character_x, character_y = 100, 100
-    sorted_pupazzo_sprites, character_rect = get_sprites_character(game, 20, 23, True)
-    second_character_sprites, second_character_rect = get_sprites_character(game, 69, 23, True)
-
+    sorted_pupazzo_sprites, character_rect = get_sprites_character(20, 23, True)
+    second_character_sprites, second_character_rect = get_sprites_character(69, 23, True)
+    # Posizione iniziale del second_character_rect
+    second_character_rect.topleft = (character_x + 500, character_y - 50)
     greeting_displayed = False  # Per evitare di visualizzare il saluto "Hello" più di una volta
 
     pupazzo_frames_per_direction = 2
     pupazzo_sprites = sorted_pupazzo_sprites
     # Inizializzazione delle variabili per l'animazione del pupazzo
     current_direction = 0  # 0: giù, 1: destra, 2: su, 3: sinistra
+    second_character_direction = 0
     current_frame = 0
     game.screen.blit(pupazzo_sprites[current_direction][current_frame], character_rect)
     first_time = game.screen.copy()  # Copia la superficie corrente
@@ -391,7 +363,7 @@ def new_load_background_sunny_land_map(game, background):
         character_x += character_speed_x
         character_y += character_speed_y
         character_rect.topleft = (character_x, character_y)
-        if is_collision(character_rect, image1, image2) or character_rect.colliderect(second_character_rect):
+        if is_collision(character_rect, background, obstacles) or character_rect.colliderect(second_character_rect):
             character_x -= character_speed_x
             character_y -= character_speed_y
             if keys[pygame.K_a] and character_rect.colliderect(second_character_rect):
@@ -402,11 +374,11 @@ def new_load_background_sunny_land_map(game, background):
                 greeting_displayed = False
         # -- aggiornamento dell'immagine
         screen.fill((0, 0, 0))
-        screen.blit(image1, (0, 0))  # Disegna l'immagine di sfondo
-        screen.blit(image2, (0, 0))  # Disegna l'immagine degli ostacoli
+        screen.blit(background, (0, 0))  # Disegna l'immagine di sfondo
+        screen.blit(obstacles, (0, 0))  # Disegna l'immagine degli ostacoli
         game.screen.blit(pupazzo_sprites[current_direction][current_frame], character_rect)  # Disegna il primo pers.
         # Disegna il secondo personaggio (ostacolo)
-        game.screen.blit(second_character_sprites[current_direction][current_frame], second_character_rect)
+        game.screen.blit(second_character_sprites[second_character_direction][current_frame], second_character_rect)
         pygame.display.flip()
         clock.tick(60)
         # -- aggiornamento dell'immagine

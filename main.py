@@ -14,13 +14,11 @@ from start_state import StartState
 
 
 def get_cropped_image(image_path, x, y, width, height) -> pygame.Surface:
-    image = pygame.image.load(image_path)
+    image = pygame.image.load(image_path).convert_alpha()
     # Definisci il rettangolo di ritaglio (x, y, larghezza, altezza)
     crop_rect = pygame.Rect(x, y, width, height)
     # Ritaglia l'immagine secondo il rettangolo definito
-    # Crea una nuova immagine con sfondo trasparente
-    cropped_image = pygame.Surface((crop_rect.width, crop_rect.height), pygame.SRCALPHA)
-    cropped_image.blit(image, (0, 0), crop_rect)
+    cropped_image = image.subsurface(crop_rect).copy()
     return cropped_image
 
 
@@ -61,7 +59,7 @@ class Game:
         else:
             image = pygame.image.load(image_path)
         if is_upscale:
-            image = pygame.transform.scale(image, (r_width, r_height))
+            image = pygame.transform.scale(image, (r_width, r_height)).convert_alpha()
         for frame in range(total_frames):
             current_opacity = int((frame / total_frames) * max_opacity)  # Calcola l'opacità corrente
             image.set_alpha(current_opacity)  # Imposta l'opacità dell'immagine
