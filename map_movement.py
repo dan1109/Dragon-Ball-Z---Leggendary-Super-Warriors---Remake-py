@@ -1,5 +1,4 @@
 # 160*150 is the mini window to move. Load all maps
-import random
 
 import numpy as np
 import pygame
@@ -337,17 +336,22 @@ def new_load_background_sunny_land_map(game, background, obstacles):
                     moving_right = False
         # quale movimento ha fatto?
         frame_counter += 1
+        possible_direction_cpu:int=0
         if frame_counter >= animation_speed:
             frame_counter = 0
             current_frame = (current_frame + 1) % pupazzo_frames_per_direction
         if moving_up:
             current_direction = 2  # Sprite di movimento verso l'alto
+            possible_direction_cpu = 0
         elif moving_down:
             current_direction = 0  # Sprite di movimento verso il basso
+            possible_direction_cpu = 2
         if moving_left:
             current_direction = 3  # Sprite di movimento verso sinistra
+            possible_direction_cpu = 1
         elif moving_right:
             current_direction = 1  # Sprite di movimento verso destra
+            possible_direction_cpu = 3
         if keys[pygame.K_LEFT]:
             character_speed_x = -CHARACTER_SPEED
         elif keys[pygame.K_RIGHT]:
@@ -370,6 +374,7 @@ def new_load_background_sunny_land_map(game, background, obstacles):
                 if not greeting_displayed:
                     print("Hello")
                     greeting_displayed = True
+                    second_character_direction = possible_direction_cpu
             else:
                 greeting_displayed = False
         # -- aggiornamento dell'immagine
