@@ -2,6 +2,7 @@ import pygame
 
 import dialogue_system
 import map_movement
+from Character_map import CharacterMap
 from dialogue_system import screen_white_and_empty_box
 from main import Game, get_cropped_image
 from sound_manager import SoundManager
@@ -12,23 +13,20 @@ def temp_test(game):
         game = Game()
     # map
     mini_background = get_cropped_image("resources/images/Icons/All_maps.png", 18, 13, 255, 305)
-    pupazzo_sprites, pupazzo_rect = map_movement.get_sprites_character(20, 23, True)
-    # Posizione iniziale del pupazzo
-    pupazzo_rect.topleft = (100, 100)
-    # Inizializzazione delle variabili per l'animazione del pupazzo
-    current_direction = 0  # 0: giù, 1: destra, 2: su, 3: sinistra
-    current_frame = 0
+    main_gohan = CharacterMap(100, 100, map_movement.get_sprites_character(20, 23, True))
+    piccolo = CharacterMap(100 + 500, 100 - 50, map_movement.get_sprites_character(69, 23, True))
+    # Posizione iniziale del second_character_rect
+    piccolo.rect.topleft = (main_gohan.x + 500, main_gohan.y - 50)
     screen_white_and_empty_box(game)
     SoundManager.play_sound_volume("resources/sounds/17 BGM #13.wav", 0.2, True)
     game.draw_image_on_background_slowly(mini_background, None, 0, 0, True,
                                          game.screen_width, game.screen_height, 0.5)
     obstacles = get_cropped_image("resources/images/Icons/All_maps obstacles.png", 18, 13, 255, 305)
-    game.screen.blit(pupazzo_sprites[current_direction][current_frame], pupazzo_rect)
-    # Aggiornamento dello schermo
+    main_gohan.blit(game)
+    piccolo.blit(game)
     pygame.display.flip()
     dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_24.txt", "Gohan", False)
-    # map_movement.load_background_sunny_land_map(game, mini_background)
-    map_movement.new_load_background_sunny_land_map(game, mini_background, obstacles)
+    map_movement.map_story_01(game, mini_background, obstacles, main_gohan, piccolo)
     print("")
 
 
@@ -120,24 +118,20 @@ def story_01(game):
     dialogue_system.game_transiction(game)
     # map
     mini_background = get_cropped_image("resources/images/Icons/All_maps.png", 18, 13, 255, 305)
-    pupazzo_sprites, pupazzo_rect = map_movement.get_sprites_character(20, 23, True)
-    # Posizione iniziale del pupazzo
-    pupazzo_rect.topleft = (100, 100)
-    # Inizializzazione delle variabili per l'animazione del pupazzo
-    current_direction = 0  # 0: giù, 1: destra, 2: su, 3: sinistra
-    current_frame = 0
+    main_gohan = CharacterMap(100, 100, map_movement.get_sprites_character(20, 23, True))
+    piccolo = CharacterMap(100 + 500, 100 - 50, map_movement.get_sprites_character(69, 23, True))
+    # Posizione iniziale del second_character_rect
+    piccolo.rect.topleft = (main_gohan.x + 500, main_gohan.y - 50)
     screen_white_and_empty_box(game)
-    SoundManager.stop_current_music()
     SoundManager.play_sound_volume("resources/sounds/17 BGM #13.wav", 0.2, True)
     game.draw_image_on_background_slowly(mini_background, None, 0, 0, True,
                                          game.screen_width, game.screen_height, 0.5)
     obstacles = get_cropped_image("resources/images/Icons/All_maps obstacles.png", 18, 13, 255, 305)
-    game.screen.blit(pupazzo_sprites[current_direction][current_frame], pupazzo_rect)
-    # Aggiornamento dello schermo
+    main_gohan.blit(game)
+    piccolo.blit(game)
     pygame.display.flip()
     dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_24.txt", "Gohan", False)
-    # map_movement.load_background_sunny_land_map(game, mini_background)
-    map_movement.new_load_background_sunny_land_map(game, mini_background, obstacles)
+    map_movement.map_story_01(game, mini_background, obstacles, main_gohan, piccolo)
     print("")
 
 

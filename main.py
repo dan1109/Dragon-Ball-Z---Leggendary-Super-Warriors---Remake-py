@@ -22,6 +22,21 @@ def get_cropped_image(image_path, x, y, width, height) -> pygame.Surface:
     return cropped_image
 
 
+def upscale_image(image, upscale_factor):
+    # Calcola le dimensioni ridimensionate dell'immagine
+    scaled_width = int(image.get_width() * upscale_factor)
+    scaled_height = int(image.get_height() * upscale_factor)
+    # Ridimensiona l'immagine
+    scaled_image = pygame.transform.scale(image, (scaled_width, scaled_height))
+    return scaled_image
+
+
+def refresh_window_image(screen, scaled_image):
+    # Riempie la finestra con l'immagine ridimensionata
+    screen.blit(scaled_image, (0, 0))
+    pygame.display.flip()
+
+
 class Game:
     def __init__(self):
         pygame.init()

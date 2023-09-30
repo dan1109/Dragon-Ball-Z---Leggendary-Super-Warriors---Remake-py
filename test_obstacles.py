@@ -29,18 +29,20 @@ def rect_overlap(rect1, rect2):
     return rect1.colliderect(rect2)
 
 
-def is_collision(character_rect, image1, image2):
-    character_mask = character_rect
-    image2_mask = image2.get_rect()
-
-    if rect_overlap(character_mask, image2_mask):
-        for x in range(character_mask.left, character_mask.right):
-            for y in range(character_mask.top, character_mask.bottom):
-                if x < 0 or x >= SCREEN_WIDTH or y < 0 or y >= SCREEN_HEIGHT:
-                    return True  # Uscito dai limiti della finestra
-                pixel_alpha = image2.get_at((x, y))[3]  # Ottieni il canale alfa (trasparenza)
-                if pixel_alpha > 0:
-                    return True  # Collisione con un'area non trasparente di image2
+def is_collision(character_rect, image2):
+    # Calcola l'intersezione tra i due rettangoli
+    intersection = character_rect.clip(image2.get_rect())
+    if intersection.width <= 0 or intersection.height <= 0:
+        # Nessuna intersezione, quindi non c'è collisione
+        # print("NO COLLISION")
+        return False
+    for x in range(intersection.left, intersection.right):
+        for y in range(intersection.top, intersection.bottom):
+            pixel_alpha = image2.get_at((x, y))[3]  # Ottieni il canale alfa (trasparenza)
+            if pixel_alpha > 0:
+                # print(" COLLISION")
+                return True  # Collisione con un'area non trasparente di image2
+    # print("NO COLLISION")
     return False
 
 
