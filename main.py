@@ -1,8 +1,6 @@
 import sys
 import time
-
 import pygame
-from pygame import Surface
 
 import messages
 import save_load
@@ -53,6 +51,35 @@ class Game:
         pygame.display.set_caption("Dragon Ball Z : I Leggendari Super Guerrieri")
         self.enter_pressed = False
         self.menu_options_img = None
+        self.bring_to_front()
+
+    # Funzione per mettere la finestra in primo piano indipendentemente dal sistema operativo
+
+    def bring_to_front(self):
+        """
+        Bring the Pygame window to the front, regardless of the operating system.
+
+        This function uses the `pyautogui` library to bring the Pygame window to the foreground.
+        If the necessary library is not available on the current operating system,
+        or if the window with the specified title is not found, it will print an error message.
+
+        :param screen: The Pygame display window object.
+        """
+        try:
+            if sys.platform == "win32" or sys.platform == "linux":
+                import pyautogui
+                # You can specify the window title or use None to bring the active window to the front
+                pyautogui.getWindow(self.screen.get_caption()).activate()
+            elif sys.platform == "darwin":
+                import pyautogui
+                # On macOS, use the app's bundle identifier or process name
+                # Replace 'YourAppName' with the actual bundle identifier or process name
+                pyautogui.hotkey('command', 'tab')
+                pyautogui.press(['tab', 'tab'])  # Navigate to the Pygame window
+            else:
+                print("This operating system is not supported.")
+        except Exception as e:
+            print("Error while attempting to bring the window to the front:", str(e))
 
     def draw_image_on_background(self, image_path, x, y, is_upscale: bool, width, height):
         # Disegna l'immagine sulla superficie temporanea alle coordinate (x, y)

@@ -4,6 +4,7 @@ import numpy as np
 import pygame
 import sys
 
+import dialogue_system
 from Character_map import CharacterMap
 from main import get_cropped_image, Game
 from test_obstacles import is_collision
@@ -15,6 +16,26 @@ CHARACTER_WIDTH, CHARACTER_HEIGHT = 20, 20
 # Posizione del secondo personaggio fisso
 SECOND_CHARACTER_X, SECOND_CHARACTER_Y = 700, 80
 SECOND_CHARACTER_WIDTH, SECOND_CHARACTER_HEIGHT = 20, 20
+
+
+def update_map(game, screen, obstacles, background, arr_characters):
+    """
+    Update the game map by clearing the screen, drawing the background, obstacles,
+    and characters, and refreshing the display.
+
+    :param game: The game object
+    :param screen: The game screen surface
+    :param obstacles: The image representing obstacles on the map
+    :param background: The background image of the game map
+    :param arr_characters: List of character objects to be drawn on the map
+    """
+    # -- aggiornamento dell'immagine a prescindere dalla scelta degli fi
+    screen.fill((0, 0, 0))
+    screen.blit(background, (0, 0))  # Disegna l'immagine di sfondo
+    screen.blit(obstacles, (0, 0))  # Disegna l'immagine degli ostacoli
+    for character in arr_characters:
+        character.blit(game)
+    pygame.display.flip()
 
 
 def flip_collision_matrix(game, collision_matrix):
@@ -195,7 +216,6 @@ def map_story_01(game, background, obstacles, main_character, second_character):
     background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
     obstacles = pygame.transform.scale(obstacles, (SCREEN_WIDTH, SCREEN_HEIGHT))
     greeting_displayed = False  # Per evitare di visualizzare il saluto "Hello" più di una volta
-    see_img(background)
     main_character.blit(game)
     second_character.blit(game)
     # Aggiornamento dello schermo
@@ -220,19 +240,13 @@ def map_story_01(game, background, obstacles, main_character, second_character):
             main_character.set_previous_coordinate()
             if keys[pygame.K_a] and main_character.rect.colliderect(second_character.rect):
                 if not greeting_displayed:
-                    print("Hello")
                     greeting_displayed = True
                     second_character.direction = main_character.opposite_direction()
+                    update_map(game, screen, obstacles, background, [main_character, second_character])
+                    dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_25.txt", "Piccolo", False)
             else:
                 greeting_displayed = False
-        # -- aggiornamento dell'immagine a prescindere dalla scelta degli fi
-        screen.fill((0, 0, 0))
-        screen.blit(background, (0, 0))  # Disegna l'immagine di sfondo
-        screen.blit(obstacles, (0, 0))  # Disegna l'immagine degli ostacoli
-        main_character.blit(game)
-        # Disegna il secondo personaggio (ostacolo)
-        second_character.blit(game)
-        pygame.display.flip()
+        update_map(game, screen, obstacles, background, [main_character, second_character])
         clock.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
