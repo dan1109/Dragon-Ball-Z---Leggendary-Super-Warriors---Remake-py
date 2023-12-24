@@ -14,6 +14,7 @@ class SoundManager:
     MENU_SOUND = "resources/sounds/03 BGM #03.wav"
     SCROLL_MENU_SOUND = "resources/sounds/direction.wav"
     A_SOUND = "resources/sounds/A.wav"
+    REWARD_CARD = "resources/sounds/Win_Card.wav"
 
     @staticmethod
     def play_menu_sound():
@@ -29,6 +30,11 @@ class SoundManager:
     def play_click_sound():
         initialize_if_not_mixer()
         pygame.mixer.Sound(SoundManager.A_SOUND).play()
+
+    @staticmethod
+    def win_card_sound():
+        initialize_if_not_mixer()
+        pygame.mixer.Sound(SoundManager.REWARD_CARD).play()
 
     @staticmethod
     def load_sound(music_path):

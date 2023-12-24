@@ -25,8 +25,6 @@ def temp_test(game):
     main_gohan.blit(game)
     piccolo.blit(game)
     pygame.display.flip()
-    answer = dialogue_system.dialogue_with_yes_no(game, "resources/Dialogue/Story_01/Story_01_25.txt",
-                                                  "Piccolo", False, True, True)
     dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_24.txt", "Gohan", False)
     map_movement.map_story_01(game, mini_background, obstacles, main_gohan, piccolo)
     print("")

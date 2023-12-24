@@ -246,6 +246,7 @@ def map_story_01(game, background, obstacles, main_character, second_character):
                     dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_25.txt", "Piccolo", False)
                     answer = dialogue_system.dialogue_with_yes_no(game, "resources/Dialogue/Story_01/Story_01_25.txt",
                                                                   "Piccolo", False, True, True)
+                    dialogue_system.dialogue_box_win_card(game, "Attacco L.3", False)  #todo a list of cards in memory
                     print("")
             else:
                 greeting_displayed = False

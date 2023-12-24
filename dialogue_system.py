@@ -135,6 +135,92 @@ def set_person_box_with_image(screen, font, box_dialogue, speaker_name, screen_w
     pygame.display.flip()
 
 
+def dialogue_box_win_card(game, card_name, erase_all_screen: bool):
+    # Impostazioni dello schermo
+    screen_width = game.screen_width
+    screen_height = game.screen_height
+    height_box = screen_height - 200
+    screen = game.screen
+
+    dialogue_lines = split_text("[ "+card_name+" ] Ottenuta!", 30)  # 50 è la lunghezza massima della riga
+
+    # Impostazioni per lo scorrimento del testo
+    current_line_index = 0
+    lines_per_box = 2  # Quante righe di testo mostrare in un box
+
+    # Caricamento del font personalizzato
+    font_path = "resources/Fonts/pkmn rbygsc.ttf"  # Sostituisci con il percorso del tuo file di font
+    font = pygame.font.Font(font_path, 36)
+
+    # Caricamento dell'immagine del triangolo
+    triangle_image = pygame.image.load("resources/images/Icons/select.PNG")
+    original_triangle_rect = triangle_image.get_rect()
+    triangle_rect = original_triangle_rect.copy()
+    triangle_rect.bottomright = (screen_width - 10, screen_height - 50)  # Posiziona in basso a destra
+
+    triangle_y_offset = 0
+    triangle_movement_speed = 0.3
+
+    clock = pygame.time.Clock()
+    running = True
+    # Pulisci lo schermo riempiendolo di bianco se richiesto
+    if erase_all_screen:
+        screen.fill(Colors.WHITE)
+    # Clear only the dialog box area by drawing a white rectangle
+    dialog_box_rect = pygame.Rect(0, screen_height - 200, screen_width, 200)
+    pygame.draw.rect(screen, Colors.WHITE, dialog_box_rect)
+    pygame.display.flip()
+    # Disegna il box del dialogo - deprecated?
+    line_surface = font.render("", True, Colors.BLACK)
+    pygame.draw.rect(screen, Colors.BLACK, (0, height_box, screen_width, 200), 2)
+    screen.blit(line_surface, (20, screen_height - 180 + 1 * 40))
+    pygame.display.flip()
+    # disegna il box della persona che parla
+    font_person = pygame.font.Font(font_path, 24)
+    width_dialogue_person = 0
+    dialogue_box_img = "resources/Dialogue/dialogue_sx.png"
+    set_person_box_with_image(screen, font_person, dialogue_box_img, "", width_dialogue_person, height_box, False)
+    # Capture the current screen content
+    screen_copy = screen.copy()
+    SoundManager.win_card_sound()
+    time.sleep(1)
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    SoundManager.play_click_sound()
+                    # Aggiungi il seguente codice per "pulire" il triangolo quando premi ENTER
+                    screen.blit(screen_copy, (0, 0))
+                    pygame.display.flip()
+                    # pausa
+                    time.sleep(0.25)
+                    current_line_index += lines_per_box
+                    if current_line_index >= len(dialogue_lines):
+                        running = False
+
+        if running:
+            # Mostra il testo nel box
+            for i in range(lines_per_box):
+                line_index = current_line_index + i
+                # Mostra il triangolo solo dopo il riempimento del testo
+                if line_index >= len(dialogue_lines):
+                    triangle_rect.y = screen_height - 50
+                else:
+                    triangle_rect.y = screen_height - 50 + triangle_y_offset
+                    triangle_y_offset += triangle_movement_speed
+                    if triangle_y_offset > 10 or triangle_y_offset < -10:
+                        triangle_movement_speed *= -1
+                    line_surface = font.render(dialogue_lines[line_index], True, Colors.BLACK)  # le scritte
+                    screen.blit(line_surface, (20, screen_height - 150 + i * 40))
+
+            image_suspend(screen, triangle_image, triangle_rect, screen_height, triangle_y_offset,
+                          triangle_movement_speed)
+            pygame.display.flip()
+        clock.tick(60)
+
+
 # 200 è il dialogo di altezza
 def dialogue_box(game, txt_path, name_person: str, erase_all_screen: bool, is_person: bool, is_left: bool):
     """
