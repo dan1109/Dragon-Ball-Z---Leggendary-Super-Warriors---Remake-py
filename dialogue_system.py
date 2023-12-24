@@ -239,6 +239,83 @@ def dialogue_box(game, txt_path, name_person: str, erase_all_screen: bool, is_pe
         clock.tick(60)
 
 
+def dialogue_with_yes_no(game, txt_path, name_person: str, erase_all_screen: bool, is_person: bool, is_left: bool):
+    screen_width = game.screen_width
+    screen_height = game.screen_height
+
+    # Display dialogue text
+    dialogue_box(game, txt_path, name_person, erase_all_screen, is_person, is_left)
+
+    # Display question
+    create_empty_box(game.screen, screen_width, screen_height)
+    font = pygame.font.Font("resources/Fonts/pkmn rbygsc.ttf", 36)
+    text_surface = font.render("prova?", True, Colors.BLACK)
+    game.screen.blit(text_surface, (20, screen_height - 180))
+
+    # Draw selection triangle
+    selection = 0  # 0 = yes, 1 = no
+    triangle_image = pygame.image.load("resources/images/Icons/select.PNG")
+    original_triangle_rect = triangle_image.get_rect()
+    triangle_rect = original_triangle_rect.copy()
+
+    # Draw yes/no options
+    yes_surface = font.render("Yes", True, Colors.BLACK)
+    no_surface = font.render("No", True, Colors.BLACK)
+    option_width = max(yes_surface.get_width(), no_surface.get_width())
+    option_height = max(yes_surface.get_height(), no_surface.get_height())
+
+    yes_position = (20, screen_height - 120)
+    no_position = (20 + option_width + 10, screen_height - 120)
+
+    # Position triangle cursor near Yes at the beginning
+    triangle_rect.midright = (yes_position[0] - 5, yes_position[1] + option_height // 2)
+
+    # Copy display for blitting background
+    screen_copy = game.screen.copy()
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT and selection == 0:
+                    SoundManager.play_click_sound()
+                    # Clean previous triangle position
+                    game.screen.blit(screen_copy, (0, 0))
+                    # pausa
+                    selection = 1  # Move to No
+                    # Position triangle cursor near No
+                    triangle_rect.midright = (no_position[0] - 5, no_position[1] + option_height // 2)
+                elif event.key == pygame.K_LEFT and selection == 1:
+                    SoundManager.play_click_sound()
+                    # Clean previous triangle position
+                    game.screen.blit(screen_copy, (0, 0))
+                    # pausa
+                    selection = 0  # Move to Yes
+                    # Position triangle cursor near Yes
+                    triangle_rect.midright = (yes_position[0] - 5, yes_position[1] + option_height // 2)
+                elif event.key == pygame.K_RETURN:
+                    SoundManager.play_click_sound()
+                    # Clean previous triangle position
+                    game.screen.blit(screen_copy, (0, 0))
+                    pygame.display.flip()
+                    # pausa
+                    time.sleep(0.25)
+                    return selection == 0  # Return True if selected yes, False if no
+
+        # Update graphics
+        game.screen.blit(screen_copy, (0, 0))
+        # Draw yes/no options
+        game.screen.blit(yes_surface, yes_position)
+        game.screen.blit(no_surface, no_position)
+        # Draw selection triangle
+        game.screen.blit(triangle_image, triangle_rect)
+
+        pygame.display.flip()
+
+
+# Aggiungi gli import necessari, come pygame, time, e qualsiasi altro modulo utilizzato nel codice originale.
+# Sostituisci 'your_module' e 'Colors' con i nomi dei moduli e delle classi appropriati dal tuo codice.
+
+
 def narration_box(game, txt_path, erase_all_screen):
     dialogue_box(game, txt_path, "", erase_all_screen, False, False)
 

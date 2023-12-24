@@ -244,6 +244,9 @@ def map_story_01(game, background, obstacles, main_character, second_character):
                     second_character.direction = main_character.opposite_direction()
                     update_map(game, screen, obstacles, background, [main_character, second_character])
                     dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_25.txt", "Piccolo", False)
+                    answer = dialogue_system.dialogue_with_yes_no(game, "resources/Dialogue/Story_01/Story_01_25.txt",
+                                                                  "Piccolo", False, True, True)
+                    print("")
             else:
                 greeting_displayed = False
         update_map(game, screen, obstacles, background, [main_character, second_character])
