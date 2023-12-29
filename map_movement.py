@@ -5,8 +5,10 @@ import pygame
 import sys
 
 import dialogue_system
+import messages
 from Character_map import CharacterMap
 from main import get_cropped_image, Game
+from sound_manager import SoundManager
 from test_obstacles import is_collision
 
 # Costanti
@@ -228,11 +230,25 @@ def map_story_01(game, background, obstacles, main_character, second_character):
     first_time = game.screen.copy()  # Copia la superficie corrente
     game.screen.blit(first_time, (0, 0))
     pygame.display.flip()
+    dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_24.txt", "Gohan", False)
+    pygame.event.clear()  # Clear the old events
+    choice_menu_map: int = -1
     running = True
     while running:
         current_time = pygame.time.get_ticks()
+        pygame.event.clear()  # Clear the current RETURN
         keys = pygame.key.get_pressed()  # Gestione degli eventi e input utente
         # Gestione degli input diretti
+        if keys[pygame.K_RETURN]:
+            pygame.event.clear()  # Clear the current RETURN
+            back_again = game.screen.copy()  # Copia la superficie corrente
+            choice_menu_map = game.menu("resources/images/Icons/save_state.png", "", messages.Messages.MAP_MENU_OPTION,
+                                        False, 300, 100)
+            if choice_menu_map == 4:
+                choice_menu_map = -1
+                game.screen.blit(back_again, (0, 0))
+                pygame.display.flip()
+                pygame.event.clear()  # Clear the current RETURN
         main_character.handle_pressed_movement(keys)
         if is_collision(main_character.rect, obstacles):
             main_character.set_previous_coordinate()
@@ -244,9 +260,12 @@ def map_story_01(game, background, obstacles, main_character, second_character):
                     second_character.direction = main_character.opposite_direction()
                     update_map(game, screen, obstacles, background, [main_character, second_character])
                     dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_25.txt", "Piccolo", False)
-                    answer = dialogue_system.dialogue_with_yes_no(game, "resources/Dialogue/Story_01/Story_01_25.txt",
-                                                                  "Piccolo", False, True, True)
-                    dialogue_system.dialogue_box_win_card(game, "Attacco L.3", False)  #todo a list of cards in memory
+                    dialogue_system.dialogue_box_win_card(game, "Attacco L.3",
+                                                              False)  # todo a list of cards in memory
+                    dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_26.txt", "", False)
+                        # answer = dialogue_system.dialogue_with_yes_no(game,
+                        # "resources/Dialogue/Story_01/Story_01_25.txt", "Piccolo", False, True, True)
+
                     print("")
             else:
                 greeting_displayed = False

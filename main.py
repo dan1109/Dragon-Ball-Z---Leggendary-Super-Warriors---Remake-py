@@ -52,6 +52,7 @@ class Game:
         self.enter_pressed = False
         self.menu_options_img = None
         self.bring_to_front()
+        self.available_enter_map_menu = False  # ignore ENTER to open menu if False
 
     # Funzione per mettere la finestra in primo piano indipendentemente dal sistema operativo
 
@@ -145,6 +146,9 @@ class Game:
         self.menu_options_img = self.screen.copy()  # Copia la superficie corrente
 
     def menu(self, menu_image: str, menu_sound, options_list, is_double_check: bool, screen_width, screen_height):
+        self.available_enter_map_menu = True
+        self.enter_pressed = False
+        self.state.count_enter = -1
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         pygame.display.set_caption("Dragon Ball Z : I Leggendari Super Guerrieri")
         self.erase_screen(None, None)
@@ -156,7 +160,8 @@ class Game:
         # Caricamento del font personalizzato
         font_path = "resources/Fonts/pkmn rbygsc.ttf"  # Sostituisci con il percorso del tuo file di font
         self.custom_font = pygame.font.Font(font_path, 36)
-        SoundManager.play_sound(menu_sound, True)
+        if len(menu_sound) > 0:
+            SoundManager.play_sound(menu_sound, True)
         if is_double_check:
             self.start_state = StartState()  # Nuovo stato di avvio
         if screen_width is None or screen_height is None:
@@ -215,7 +220,9 @@ class Game:
 
         print("Uscito dal menu - " + str(options_list[self.state.selected_option]))
         self.erase_screen(None, None)
-        SoundManager.stop_current_music()  # stop menu music
+        if len(menu_sound) > 0:
+            SoundManager.stop_current_music()  # stop menu music
+        pygame.event.clear()            # Clear the old events
         return self.state.selected_option
 
     def run(self):

@@ -394,7 +394,6 @@ def dialogue_with_yes_no(game, txt_path, name_person: str, erase_all_screen: boo
         game.screen.blit(no_surface, no_position)
         # Draw selection triangle
         game.screen.blit(triangle_image, triangle_rect)
-
         pygame.display.flip()
 
 
