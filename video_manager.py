@@ -1,11 +1,30 @@
+import os
+import sys
+
 import numpy as np
 import sounddevice as sd
+
+
+def get_script_directory():
+    """Restituisce la directory del modulo in esecuzione."""
+    return os.path.dirname(os.path.abspath(sys.argv[0]))
+
+
+def get_absolute_path_if_exists(relative_path):
+    """Restituisce il percorso assoluto solo se il file esiste, altrimenti restituisce il percorso originale."""
+    script_directory = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+    # Restituisci il percorso assoluto se il file esiste, altrimenti il percorso originale
+    return os.path.join(script_directory, relative_path) if os.path.exists(
+        os.path.join(script_directory, relative_path)) else os.path.abspath(relative_path)
 
 
 def play_video(video_path, width, hight):
     import pygame
     from moviepy.editor import VideoFileClip
     # Load video
+    # Utilizza la directory dello script per costruire il percorso relativo
+    video_path = os.path.join(get_script_directory(), video_path)
     pygame.display.set_caption("Dragon Ball Z : I Leggendari Super Guerrieri")
     clip = VideoFileClip(video_path)
     clip = clip.resize((width, hight))

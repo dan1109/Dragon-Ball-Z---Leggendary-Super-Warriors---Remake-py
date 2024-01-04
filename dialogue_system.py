@@ -5,6 +5,7 @@ import pygame
 from colors import Colors
 from main import get_cropped_image
 from sound_manager import SoundManager
+from video_manager import get_absolute_path_if_exists
 
 
 def game_transiction(game):
@@ -74,6 +75,11 @@ def screen_white_and_empty_box(game):
     create_empty_box(game.screen, game.screen_width, game.screen_height)
 
 
+def screen_white_and_empty_box_seconds(game, seconds):
+    screen_white_transition(game.screen, game.screen_width, game.screen_height, seconds)
+    create_empty_box(game.screen, game.screen_width, game.screen_height)
+
+
 def screen_white_transition(screen, screen_width, screen_height, duration_sec):
     white_surface = pygame.Surface((screen_width, screen_height))
     white_surface.set_alpha(0)  # Opacità iniziale
@@ -113,7 +119,7 @@ def image_suspend(screen, triangle_image, triangle_rect, screen_height, triangle
 
 def set_person_box_with_image(screen, font, box_dialogue, speaker_name, screen_width, screen_height, is_left):
     # Carica l'immagine di sfondo del dialogo
-    dialog_background = pygame.image.load(box_dialogue)
+    dialog_background = pygame.image.load(get_absolute_path_if_exists(box_dialogue))
 
     # Rimpicciolisci l'immagine di sfondo
     new_width = int(dialog_background.get_width() * 0.4)  # Riduci larghezza al 40%
@@ -142,7 +148,7 @@ def dialogue_box_win_card(game, card_name, erase_all_screen: bool):
     height_box = screen_height - 200
     screen = game.screen
 
-    dialogue_lines = split_text("[ "+card_name+" ] Ottenuta!", 30)  # 50 è la lunghezza massima della riga
+    dialogue_lines = split_text("[ " + card_name + " ] Ottenuta!", 30)  # 50 è la lunghezza massima della riga
 
     # Impostazioni per lo scorrimento del testo
     current_line_index = 0
@@ -150,10 +156,10 @@ def dialogue_box_win_card(game, card_name, erase_all_screen: bool):
 
     # Caricamento del font personalizzato
     font_path = "resources/Fonts/pkmn rbygsc.ttf"  # Sostituisci con il percorso del tuo file di font
-    font = pygame.font.Font(font_path, 36)
+    font = pygame.font.Font(get_absolute_path_if_exists(font_path), 36)
 
     # Caricamento dell'immagine del triangolo
-    triangle_image = pygame.image.load("resources/images/Icons/select.PNG")
+    triangle_image = pygame.image.load(get_absolute_path_if_exists("resources/images/Icons/select.PNG"))
     original_triangle_rect = triangle_image.get_rect()
     triangle_rect = original_triangle_rect.copy()
     triangle_rect.bottomright = (screen_width - 10, screen_height - 50)  # Posiziona in basso a destra
@@ -238,7 +244,7 @@ def dialogue_box(game, txt_path, name_person: str, erase_all_screen: bool, is_pe
     height_box = screen_height - 200
     screen = game.screen
     # Carica il testo da un file di testo
-    with open(txt_path, "r") as file:
+    with open(get_absolute_path_if_exists(txt_path), "r") as file:
         dialogue_text = file.read()
 
     dialogue_lines = split_text(dialogue_text, 30)  # 50 è la lunghezza massima della riga
@@ -249,10 +255,10 @@ def dialogue_box(game, txt_path, name_person: str, erase_all_screen: bool, is_pe
 
     # Caricamento del font personalizzato
     font_path = "resources/Fonts/pkmn rbygsc.ttf"  # Sostituisci con il percorso del tuo file di font
-    font = pygame.font.Font(font_path, 36)
+    font = pygame.font.Font(get_absolute_path_if_exists(font_path), 36)
 
     # Caricamento dell'immagine del triangolo
-    triangle_image = pygame.image.load("resources/images/Icons/select.PNG")
+    triangle_image = pygame.image.load(get_absolute_path_if_exists("resources/images/Icons/select.PNG"))
     original_triangle_rect = triangle_image.get_rect()
     triangle_rect = original_triangle_rect.copy()
     triangle_rect.bottomright = (screen_width - 10, screen_height - 50)  # Posiziona in basso a destra
@@ -279,9 +285,9 @@ def dialogue_box(game, txt_path, name_person: str, erase_all_screen: bool, is_pe
         font_person = pygame.font.Font(font_path, 24)
         width_dialogue_person = 0
         if is_left:
-            dialogue_box_img = "resources/Dialogue/dialogue_sx.png"
+            dialogue_box_img = get_absolute_path_if_exists("resources/Dialogue/dialogue_sx.png")
         else:
-            dialogue_box_img = "resources/Dialogue/dialogue_dx.png"
+            dialogue_box_img = get_absolute_path_if_exists("resources/Dialogue/dialogue_dx.png")
             width_dialogue_person += screen_width - screen_width / 2.4
         set_person_box_with_image(screen, font_person, dialogue_box_img,
                                   name_person, width_dialogue_person, height_box, is_left)
@@ -323,6 +329,7 @@ def dialogue_box(game, txt_path, name_person: str, erase_all_screen: bool, is_pe
                           triangle_movement_speed)
             pygame.display.flip()
         clock.tick(60)
+    pygame.event.clear()  # Clear the old events
 
 
 def dialogue_with_yes_no(game, txt_path, name_person: str, erase_all_screen: bool, is_person: bool, is_left: bool):
@@ -334,13 +341,13 @@ def dialogue_with_yes_no(game, txt_path, name_person: str, erase_all_screen: boo
 
     # Display question
     create_empty_box(game.screen, screen_width, screen_height)
-    font = pygame.font.Font("resources/Fonts/pkmn rbygsc.ttf", 36)
+    font = pygame.font.Font(get_absolute_path_if_exists("resources/Fonts/pkmn rbygsc.ttf"), 36)
     text_surface = font.render("prova?", True, Colors.BLACK)
     game.screen.blit(text_surface, (20, screen_height - 180))
 
     # Draw selection triangle
     selection = 0  # 0 = yes, 1 = no
-    triangle_image = pygame.image.load("resources/images/Icons/select.PNG")
+    triangle_image = pygame.image.load(get_absolute_path_if_exists("resources/images/Icons/select.PNG"))
     original_triangle_rect = triangle_image.get_rect()
     triangle_rect = original_triangle_rect.copy()
 

@@ -1,7 +1,9 @@
+import os
 import sys
 import time
 import pygame
 
+import dialogue_system
 import messages
 import save_load
 import video_manager
@@ -9,10 +11,11 @@ from colors import Colors
 from menu_state import MenuState
 from sound_manager import SoundManager
 from start_state import StartState
+from video_manager import get_absolute_path_if_exists
 
 
 def get_cropped_image(image_path, x, y, width, height) -> pygame.Surface:
-    image = pygame.image.load(image_path).convert_alpha()
+    image = pygame.image.load(get_absolute_path_if_exists(image_path)).convert_alpha()
     # Definisci il rettangolo di ritaglio (x, y, larghezza, altezza)
     crop_rect = pygame.Rect(x, y, width, height)
     # Ritaglia l'immagine secondo il rettangolo definito
@@ -85,9 +88,9 @@ class Game:
     def draw_image_on_background(self, image_path, x, y, is_upscale: bool, width, height):
         # Disegna l'immagine sulla superficie temporanea alle coordinate (x, y)
         if is_upscale:
-            image = pygame.transform.scale(pygame.image.load(image_path), (width, height))
+            image = pygame.transform.scale(pygame.image.load(get_absolute_path_if_exists(image_path)), (width, height))
         else:
-            image = pygame.image.load(image_path)
+            image = pygame.image.load(get_absolute_path_if_exists(image_path))
         self.erase_screen(x, y)
         self.screen.blit(image, (x, y))
         pygame.display.flip()
@@ -100,7 +103,7 @@ class Game:
         if image_type is not None:
             image = image_type
         else:
-            image = pygame.image.load(image_path)
+            image = pygame.image.load(get_absolute_path_if_exists(image_path))
         if is_upscale:
             image = pygame.transform.scale(image, (r_width, r_height)).convert_alpha()
         for frame in range(total_frames):
@@ -152,6 +155,7 @@ class Game:
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         pygame.display.set_caption("Dragon Ball Z : I Leggendari Super Guerrieri")
         self.erase_screen(None, None)
+        dialogue_system.screen_white_and_empty_box_seconds(self, 0.3)
         # Caricamento e ridimensionamento dell'immagine di sfondo
         self.background = pygame.image.load(menu_image)
         self.background = pygame.transform.scale(self.background, (self.screen_width, self.screen_height))
@@ -159,7 +163,7 @@ class Game:
         pygame.display.flip()
         # Caricamento del font personalizzato
         font_path = "resources/Fonts/pkmn rbygsc.ttf"  # Sostituisci con il percorso del tuo file di font
-        self.custom_font = pygame.font.Font(font_path, 36)
+        self.custom_font = pygame.font.Font(get_absolute_path_if_exists(font_path), 36)
         if len(menu_sound) > 0:
             SoundManager.play_sound(menu_sound, True)
         if is_double_check:
@@ -222,7 +226,7 @@ class Game:
         self.erase_screen(None, None)
         if len(menu_sound) > 0:
             SoundManager.stop_current_music()  # stop menu music
-        pygame.event.clear()            # Clear the old events
+        pygame.event.clear()  # Clear the old events
         return self.state.selected_option
 
     def run(self):

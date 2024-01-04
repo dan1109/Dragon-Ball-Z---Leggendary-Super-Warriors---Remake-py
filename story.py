@@ -25,7 +25,12 @@ def temp_test(game):
     main_gohan.blit(game)
     piccolo.blit(game)
     pygame.display.flip()
-    map_movement.map_story_01(game, mini_background, obstacles, main_gohan, piccolo)
+    checkpoint = [game, mini_background, obstacles, main_gohan, piccolo, False]
+    dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_24.txt", "Gohan", False)
+    while checkpoint[-1] is False:
+        print("mini map load..")
+        checkpoint = map_movement.map_story_01(game, mini_background, obstacles, main_gohan, piccolo)
+    print("end story 1 begin battle..")
     print("")
 
 
@@ -114,6 +119,7 @@ def story_01(game):
     dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_22.txt", "Gohan", False)
     dialogue_system.box_face(game, 190, 33, False, False)  # piccolo face
     dialogue_system.dialogue_dx(game, "resources/Dialogue/Story_01/Story_01_23.txt", "Piccolo", False)
+    SoundManager.stop_current_music()
     dialogue_system.game_transiction(game)
     # map
     mini_background = get_cropped_image("resources/images/Icons/All_maps.png", 18, 13, 255, 305)
@@ -130,8 +136,12 @@ def story_01(game):
     piccolo.blit(game)
     pygame.display.flip()
     dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_24.txt", "Gohan", False)
-    map_movement.map_story_01(game, mini_background, obstacles, main_gohan, piccolo)
-    print("")
+    checkpoint = [game, mini_background, obstacles, main_gohan, piccolo, False]
+    pygame.display.flip()
+    while checkpoint[-1] is False:
+        print("mini map load..")
+        checkpoint = map_movement.map_story_01(game, mini_background, obstacles, main_gohan, piccolo)
+    print("end story 1 begin battle..")
 
 
 if __name__ == "__main__":

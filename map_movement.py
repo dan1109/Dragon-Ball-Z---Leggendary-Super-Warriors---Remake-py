@@ -213,7 +213,6 @@ def map_story_01(game, background, obstacles, main_character, second_character):
         game = Game()
     # Caricamento degli sfondi
     screen = game.screen
-
     # Caricamento immagini - Ridimensiona le immagini per adattarle alla finestra
     background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
     obstacles = pygame.transform.scale(obstacles, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -230,9 +229,7 @@ def map_story_01(game, background, obstacles, main_character, second_character):
     first_time = game.screen.copy()  # Copia la superficie corrente
     game.screen.blit(first_time, (0, 0))
     pygame.display.flip()
-    dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_24.txt", "Gohan", False)
-    pygame.event.clear()  # Clear the old events
-    choice_menu_map: int = -1
+    end_map_story_01 = False
     running = True
     while running:
         current_time = pygame.time.get_ticks()
@@ -241,14 +238,7 @@ def map_story_01(game, background, obstacles, main_character, second_character):
         # Gestione degli input diretti
         if keys[pygame.K_RETURN]:
             pygame.event.clear()  # Clear the current RETURN
-            back_again = game.screen.copy()  # Copia la superficie corrente
-            choice_menu_map = game.menu("resources/images/Icons/save_state.png", "", messages.Messages.MAP_MENU_OPTION,
-                                        False, 300, 100)
-            if choice_menu_map == 4:
-                choice_menu_map = -1
-                game.screen.blit(back_again, (0, 0))
-                pygame.display.flip()
-                pygame.event.clear()  # Clear the current RETURN
+            running = False  # exit and return call again function to interupt thread
         main_character.handle_pressed_movement(keys)
         if is_collision(main_character.rect, obstacles):
             main_character.set_previous_coordinate()
@@ -261,12 +251,13 @@ def map_story_01(game, background, obstacles, main_character, second_character):
                     update_map(game, screen, obstacles, background, [main_character, second_character])
                     dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_25.txt", "Piccolo", False)
                     dialogue_system.dialogue_box_win_card(game, "Attacco L.3",
-                                                              False)  # todo a list of cards in memory
+                                                          False)  # todo a list of cards in memory
                     dialogue_system.dialogue_sx(game, "resources/Dialogue/Story_01/Story_01_26.txt", "", False)
-                        # answer = dialogue_system.dialogue_with_yes_no(game,
-                        # "resources/Dialogue/Story_01/Story_01_25.txt", "Piccolo", False, True, True)
+                    # answer = dialogue_system.dialogue_with_yes_no(game,
+                    # "resources/Dialogue/Story_01/Story_01_25.txt", "Piccolo", False, True, True)
 
                     print("")
+                    end_map_story_01 = True
             else:
                 greeting_displayed = False
         update_map(game, screen, obstacles, background, [main_character, second_character])
@@ -276,3 +267,8 @@ def map_story_01(game, background, obstacles, main_character, second_character):
                 pygame.quit()
                 sys.exit()
         # -- aggiornamento dell'immagine
+    choice_menu_map = game.menu("resources/images/Icons/save_state.png", "", messages.Messages.MAP_MENU_OPTION,
+                                False, 300, 100)
+    dialogue_system.screen_white_and_empty_box_seconds(game, 0.3)
+    print("running false")
+    return [game, background, obstacles, main_character, second_character, end_map_story_01]
